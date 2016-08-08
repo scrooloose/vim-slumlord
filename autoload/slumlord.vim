@@ -27,4 +27,6 @@ function! slumlord#updatePreview() abort
     exec "read " . expand("%:t:r") . ".utxt"
 
     call cursor(line("$") - (lastLine - startLine), startCol)
+
+    noautocmd write
 endfunction
