@@ -3,4 +3,4 @@ if exists("b:loaded_slumlord")
 endif
 let b:loaded_slumlord=1
 
-autocmd bufwritepost *.uml silent! call slumlord#updatePreview()
+autocmd bufwritepost *.uml silent call slumlord#updatePreview()

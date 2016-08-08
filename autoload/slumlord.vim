@@ -17,14 +17,13 @@ function! slumlord#updatePreview() abort
         endif
     endif
 
-
     let cmd = system("java -jar ". s:jar_path ." -tutxt " . expand("%"))
     call system(cmd)
 
     0put!=''
     0put!=''
     0
-    exec "read " . expand("%:t:r") . ".utxt"
+    exec "read " . expand("%:p:r") . ".utxt"
 
     call cursor(line("$") - (lastLine - startLine), startCol)
 
