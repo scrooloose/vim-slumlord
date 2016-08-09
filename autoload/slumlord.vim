@@ -40,6 +40,9 @@ function! s:insertDiagram() abort
 
     "fix trailing whitespace
     exec '1,' . s:dividerLnum() . 's/\s\+$//'
+
+    "remove leading whitespace
+    exec '1,' . s:dividerLnum() . 's/^ \{7}//'
 endfunction
 
 function! s:addTitle() abort
@@ -51,6 +54,6 @@ function! s:addTitle() abort
     let title = substitute(getline(lnum), '^title \(.*\)', '\1', '')
 
     call append(0, "")
-    call append(0, "     " . repeat("^", len(title)+6))
-    call append(0, "        " . title)
+    call append(0, repeat("^", len(title)+6))
+    call append(0, " " . title)
 endfunction
