@@ -3,6 +3,8 @@ if exists("b:loaded_slumlord")
 endif
 let b:loaded_slumlord=1
 
+setlocal nowrap
+
 if !exists("g:slumlord_au_created")
     autocmd bufwritepost *.uml silent call slumlord#updatePreview()
     let g:slumlord_au_created = 1
