@@ -1,5 +1,5 @@
 let s:jar_path = expand("<sfile>:p:h") . "/../plantuml.jar"
-let s:divider = "----8<----"
+let s:divider = "@startuml"
 
 function! slumlord#updatePreview() abort
     let startLine = line(".")

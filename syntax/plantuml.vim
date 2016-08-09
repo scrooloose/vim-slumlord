@@ -1,2 +1,2 @@
-syntax region plantumlPreview start=#\%^\ze\_.*\n----8<----# end=#----8<----#
+syntax region plantumlPreview start=#\%^\ze\_.*\n@startuml# end=#\ze@startuml#
 highlight link plantumlPreview Normal
