@@ -25,6 +25,9 @@ function! slumlord#updatePreview() abort
 
     call s:addTitle()
 
+    "fix trailing whitespace
+    exec '1,' . l . 's/\s\+$//'
+
     call cursor(line("$") - (lastLine - startLine), startCol)
 
     noautocmd write
