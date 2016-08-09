@@ -15,7 +15,7 @@ Introduction
 Slumlord is built atop the wang-hardeningly awesome [plantuml](http://plantuml.com).
 It gives you a "live preview" of your UML diagrams when you save.
 
-![Demo][0]
+![Demo](https://github.com/scrooloose/vim-slumlord/raw/master/_assets/demo.gif)
 
 
 Installation
@@ -50,5 +50,3 @@ will be forcefully inserted/updated at the top of your file!
 
 Note: I have only used this for sequence diagrams - the ASCII output of
 plantuml seems to be less than stellar for other diagram types.
-
-[0]: https://github.com/scrooloose/vim-slumlord/raw/master/_assets/Demo.gif
