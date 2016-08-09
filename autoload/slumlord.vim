@@ -1,17 +1,16 @@
 let s:jar_path = expand("<sfile>:p:h") . "/../plantuml.jar"
+let s:divider = "----8<----"
 
 function! slumlord#updatePreview() abort
     let startLine = line(".")
     let lastLine = line("$")
     let startCol = col(".")
 
-    let divider = "----8<----"
-
-    if !search(divider, 'n')
+    if !search(s:divider, 'n')
         0put!=''
-        exec "0put!='".divider."'"
+        exec "0put!='".s:divider."'"
     else
-        let l = search(divider, 'n')
+        let l = search(s:divider, 'n')
         if l > 1
             exec '0,' . (l - 1) . 'delete'
         endif
