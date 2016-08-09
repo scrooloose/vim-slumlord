@@ -5,7 +5,9 @@ syn match plantumlPreviewBoxParts #[┌┐└┘┬─│┴<>╚═╪╝╔═
 syn match plantumlPreviewCtrlFlow #\(LOOP\|ALT\)# containedin=plantumlPreview
 syn match plantumlPreviewCtrlFlow #║ \[\w*\]#hs=s+3,he=e-1 containedin=plantumlPreview
 syn match plantumlPreviewEntity #│\w*│#hs=s+1,he=e-1 containedin=plantumlPreview
+syn match plantumlPreviewTitleUnderline #\^\+# containedin=plantumlPreview
 
 hi def link plantumlPreviewBoxParts normal
 hi def link plantumlPreviewCtrlFlow Keyword
 hi def link plantumlPreviewEntity Statement
+hi def link plantumlPreviewTitleUnderline Statement

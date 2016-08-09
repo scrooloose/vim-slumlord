@@ -23,7 +23,22 @@ function! slumlord#updatePreview() abort
     0
     exec "read " . expand("%:p:r") . ".utxt"
 
+    call s:addTitle()
+
     call cursor(line("$") - (lastLine - startLine), startCol)
 
     noautocmd write
+endfunction
+
+function! s:addTitle() abort
+    let lnum = search('^title ', 'n')
+    if !lnum
+        return
+    endif
+
+    let title = substitute(getline(lnum), '^title \(.*\)', '\1', '')
+
+    call append(0, "")
+    call append(0, "     " . repeat("^", len(title)+6))
+    call append(0, "        " . title)
 endfunction
