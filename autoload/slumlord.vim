@@ -41,8 +41,20 @@ function! s:insertDiagram() abort
     "fix trailing whitespace
     exec '1,' . s:dividerLnum() . 's/\s\+$//'
 
-    "remove leading whitespace
-    exec '1,' . s:dividerLnum() . 's/^ \{7}//'
+    call s:removeLeadingWhitespace()
+endfunction
+
+function s:removeLeadingWhitespace() abort
+    let smallestLead = 100
+
+    for i in range(1, s:dividerLnum())
+        let lead = match(getline(i), '\S')
+        if lead > 0 && lead < smallestLead
+            let smallestLead = lead
+        endif
+    endfor
+
+    exec '1,' . s:dividerLnum() . 's/^ \{'.smallestLead.'}//'
 endfunction
 
 function! s:addTitle() abort
