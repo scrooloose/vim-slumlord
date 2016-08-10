@@ -38,7 +38,7 @@ function! s:insertDiagram() abort
     exec "read " . expand("%:p:r") . ".utxt"
 
     "fix trailing whitespace
-    exec '1,' . s:dividerLnum() . 's/\s\+$//'
+    exec '1,' . s:dividerLnum() . 's/\s\+$//e'
 
     call s:removeLeadingWhitespace()
 endfunction
@@ -53,7 +53,7 @@ function! s:removeLeadingWhitespace() abort
         endif
     endfor
 
-    exec '1,' . s:dividerLnum() . 's/^ \{'.smallestLead.'}//'
+    exec '1,' . s:dividerLnum() . 's/^ \{'.smallestLead.'}//e'
 endfunction
 
 function! s:addTitle() abort
