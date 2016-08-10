@@ -67,5 +67,5 @@ function! s:addTitle() abort
 
     call append(0, "")
     call append(0, repeat("^", len(title)+6))
-    call append(0, " " . title)
+    call append(0, "   " . title)
 endfunction
