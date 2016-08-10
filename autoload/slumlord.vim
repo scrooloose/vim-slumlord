@@ -30,8 +30,7 @@ function! s:deletePreviousDiagram() abort
 endfunction
 
 function! s:insertDiagram() abort
-    let cmd = system("java -jar ". s:jar_path ." -tutxt " . expand("%"))
-    call system(cmd)
+    call system("java -jar ". s:jar_path ." -tutxt " . expand("%"))
 
     call append(0, "")
     call append(0, "")
