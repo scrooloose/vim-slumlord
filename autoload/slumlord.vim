@@ -46,7 +46,7 @@ endfunction
 function! s:removeLeadingWhitespace() abort
     let smallestLead = 100
 
-    for i in range(1, s:dividerLnum())
+    for i in range(1, s:dividerLnum()-1)
         let lead = match(getline(i), '\S')
         if lead >= 0 && lead < smallestLead
             let smallestLead = lead
