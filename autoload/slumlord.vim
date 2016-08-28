@@ -35,17 +35,43 @@ function! s:deletePreviousDiagram() abort
 endfunction
 
 function! s:insertDiagram() abort
-    call system("java -jar ". s:jar_path ." -tutxt " . expand("%"))
+    let fname = s:createDiagram()
 
     call append(0, "")
     call append(0, "")
     0
-    exec "read " . expand("%:p:r") . ".utxt"
+
+    call s:readWithoutStoringAsAltFile(fname)
 
     "fix trailing whitespace
     exec '1,' . s:dividerLnum() . 's/\s\+$//e'
 
     call s:removeLeadingWhitespace()
+endfunction
+
+function! s:readWithoutStoringAsAltFile(fname) abort
+    let oldcpoptions = &cpoptions
+    set cpoptions-=a
+    exec "read " . a:fname
+    let &cpoptions = oldcpoptions
+endfunction
+
+function! s:createDiagram() abort
+    let fname = tempname()
+    execute "write " . fname
+    call s:convertNonAsciiSupportedSyntax(fname)
+    call system("java -jar ". s:jar_path ." -tutxt " . fname)
+
+    return fname . ".utxt"
+endfunction
+
+function! s:convertNonAsciiSupportedSyntax(fname) abort
+    exec 'edit ' . a:fname
+    /@startuml/,/@enduml/s/^\s*\(boundary\|database\|entity\|control\)/participant/e
+    /@startuml/,/@enduml/s/|||/||4||/e
+    /@startuml/,/@enduml/s/\.\.\.\([^.]*\)\.\.\./==\1==/e
+    write
+    bwipe!
 endfunction
 
 function! s:removeLeadingWhitespace() abort
