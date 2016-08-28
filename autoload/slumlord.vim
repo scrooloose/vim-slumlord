@@ -1,4 +1,9 @@
-let s:jar_path = expand("<sfile>:p:h") . "/../plantuml.jar"
+if exists("g:slumlord_plantuml_jar_path")
+    let s:jar_path = g:slumlord_plantuml_jar_path
+else
+    let s:jar_path = expand("<sfile>:p:h") . "/../plantuml.jar"
+endif
+
 let s:divider = "@startuml"
 
 function! slumlord#updatePreview() abort
