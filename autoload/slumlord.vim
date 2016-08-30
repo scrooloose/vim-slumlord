@@ -68,6 +68,8 @@ endfunction
 function! s:convertNonAsciiSupportedSyntax(fname) abort
     exec 'edit ' . a:fname
     /@startuml/,/@enduml/s/^\s*\(boundary\|database\|entity\|control\)/participant/e
+    /@startuml/,/@enduml/s/^\s*\(end \)\?\zsref\>/note/e
+    /@startuml/,/@enduml/s/^\s*ref\>/note/e
     /@startuml/,/@enduml/s/|||/||4||/e
     /@startuml/,/@enduml/s/\.\.\.\([^.]*\)\.\.\./==\1==/e
     write
