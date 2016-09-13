@@ -27,7 +27,22 @@ endfunction
 
 function! s:shouldInsertPreview() abort
     "check for state diagram
-    if search('\[\*\]', 'n') > 0
+    if search('^\s*\[\*\]', 'n') > 0
+        return
+    endif
+
+    "check for use cases
+    if search('\s*\%((.*)\|:.*:\)', 'n') > 0
+        return
+    endif
+
+    "check for class diagrams
+    if search('\s*class\>.*{', 'n') > 0
+        return
+    endif
+
+    "check for activity diagrams
+    if search('\s*:.*;', 'n') > 0
         return
     endif
 
