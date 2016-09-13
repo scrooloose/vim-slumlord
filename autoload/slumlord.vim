@@ -7,25 +7,48 @@ endif
 let s:divider = "@startuml"
 
 function! slumlord#updatePreview() abort
-    if !s:dividerLnum()
+    if !s:shouldInsertPreview()
         return
     end
 
+    let tmpfname = tempname()
+    let b:slumlord_preview_fname = s:mungeDiagramInTmpFile(tmpfname)
+
+
+    let cmd = "java -jar ". s:jar_path ." -tutxt " . tmpfname
+
+    if exists("*jobstart")
+        call jobstart(cmd, { "on_exit": "s:previewGeneratedHandler" })
+    else
+        call system(cmd)
+        call s:previewGeneratedHandler(0, 0, 0)
+    endif
+endfunction
+
+function! s:shouldInsertPreview() abort
+    "check for state diagram
+    if search('\[\*\]', 'n') > 0
+        return
+    endif
+
+    return s:dividerLnum()
+endfunction
+
+function! s:dividerLnum() abort
+    return search(s:divider, 'n')
+endfunction
+
+function! s:previewGeneratedHandler(job_id, data, event) abort
     let startLine = line(".")
     let lastLine = line("$")
     let startCol = col(".")
 
     call s:deletePreviousDiagram()
-    call s:insertDiagram()
+    call s:insertDiagram(b:slumlord_preview_fname)
     call s:addTitle()
 
     call cursor(line("$") - (lastLine - startLine), startCol)
-
     noautocmd write
-endfunction
-
-function! s:dividerLnum() abort
-    return search(s:divider, 'n')
 endfunction
 
 function! s:deletePreviousDiagram() abort
@@ -34,14 +57,12 @@ function! s:deletePreviousDiagram() abort
     endif
 endfunction
 
-function! s:insertDiagram() abort
-    let fname = s:createDiagram()
-
+function! s:insertDiagram(fname) abort
     call append(0, "")
     call append(0, "")
     0
 
-    call s:readWithoutStoringAsAltFile(fname)
+    call s:readWithoutStoringAsAltFile(a:fname)
 
     "fix trailing whitespace
     exec '1,' . s:dividerLnum() . 's/\s\+$//e'
@@ -56,13 +77,10 @@ function! s:readWithoutStoringAsAltFile(fname) abort
     let &cpoptions = oldcpoptions
 endfunction
 
-function! s:createDiagram() abort
-    let fname = tempname()
-    execute "write " . fname
-    call s:convertNonAsciiSupportedSyntax(fname)
-    call system("java -jar ". s:jar_path ." -tutxt " . fname)
-
-    return fname . ".utxt"
+function! s:mungeDiagramInTmpFile(fname) abort
+    execute "write " . a:fname
+    call s:convertNonAsciiSupportedSyntax(a:fname)
+    return a:fname . '.utxt'
 endfunction
 
 function! s:convertNonAsciiSupportedSyntax(fname) abort
