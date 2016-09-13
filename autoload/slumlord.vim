@@ -21,7 +21,9 @@ function! slumlord#updatePreview() abort
         call jobstart(cmd, { "on_exit": "s:previewGeneratedHandler" })
     else
         call system(cmd)
-        call s:previewGeneratedHandler(0, 0, 0)
+        if v:shell_error == 0
+            call s:previewGeneratedHandler(0, 0, 0)
+        endif
     endif
 endfunction
 
@@ -54,6 +56,10 @@ function! s:dividerLnum() abort
 endfunction
 
 function! s:previewGeneratedHandler(job_id, data, event) abort
+    if a:data != 0
+        return 0
+    endif
+
     let startLine = line(".")
     let lastLine = line("$")
     let startCol = col(".")
