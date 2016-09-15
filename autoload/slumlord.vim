@@ -6,7 +6,7 @@ endif
 
 let s:divider = "@startuml"
 
-function! slumlord#updatePreview() abort
+function! slumlord#updatePreview(args) abort
     if !s:shouldInsertPreview()
         return
     end
@@ -17,12 +17,13 @@ function! slumlord#updatePreview() abort
 
     let cmd = "java -jar ". s:jar_path ." -tutxt " . tmpfname
 
+    let write = has_key(a:args, 'write') && a:args["write"] == 1
     if exists("*jobstart")
-        call jobstart(cmd, { "on_exit": "s:previewGeneratedHandler" })
+        call jobstart(cmd, { "on_exit": "s:asyncHandlerAdapter", "write": write })
     else
         call system(cmd)
         if v:shell_error == 0
-            call s:previewGeneratedHandler(0, 0, 0)
+            call s:updateBuffer(a:args)
         endif
     endif
 endfunction
@@ -55,11 +56,17 @@ function! s:dividerLnum() abort
     return search(s:divider, 'n')
 endfunction
 
-function! s:previewGeneratedHandler(job_id, data, event) abort
+function! s:asyncHandlerAdapter(job_id, data, event) abort
     if a:data != 0
         return 0
     endif
 
+    call s:updateBuffer(self)
+endfunction
+
+"args: a dict containing keys
+"   'write' - write the buffer after updating
+function! s:updateBuffer(args) abort
     let startLine = line(".")
     let lastLine = line("$")
     let startCol = col(".")
@@ -69,7 +76,10 @@ function! s:previewGeneratedHandler(job_id, data, event) abort
     call s:addTitle()
 
     call cursor(line("$") - (lastLine - startLine), startCol)
-    noautocmd write
+
+    if a:args['write']
+        noautocmd write
+    endif
 endfunction
 
 function! s:deletePreviousDiagram() abort
