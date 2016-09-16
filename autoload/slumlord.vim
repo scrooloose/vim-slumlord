@@ -30,22 +30,22 @@ endfunction
 
 function! s:shouldInsertPreview() abort
     "check for state diagram
-    if search('^\s*\[\*\]', 'n') > 0
+    if search('^\s*\[\*\]', 'wn') > 0
         return
     endif
 
     "check for use cases
-    if search('\s*\%((.*)\|:.*:\)', 'n') > 0
+    if search('^\s*\%((.*)\|:.*:\)', 'wn') > 0
         return
     endif
 
     "check for class diagrams
-    if search('\s*class\>.*{', 'n') > 0
+    if search('^\s*class\>', 'wn') > 0
         return
     endif
 
     "check for activity diagrams
-    if search('\s*:.*;', 'n') > 0
+    if search('^\s*:.*;', 'wn') > 0
         return
     endif
 
@@ -53,7 +53,7 @@ function! s:shouldInsertPreview() abort
 endfunction
 
 function! s:dividerLnum() abort
-    return search(s:divider, 'n')
+    return search(s:divider, 'wn')
 endfunction
 
 function! s:asyncHandlerAdapter(job_id, data, event) abort
