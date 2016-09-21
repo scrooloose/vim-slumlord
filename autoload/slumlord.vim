@@ -19,7 +19,7 @@ function! slumlord#updatePreview(args) abort
 
     let write = has_key(a:args, 'write') && a:args["write"] == 1
     if exists("*jobstart")
-        call jobstart(cmd, { "on_exit": "s:asyncHandlerAdapter", "write": write })
+        call jobstart(cmd, { "on_exit": "s:asyncHandlerAdapter", "write": write, "bufnr": bufnr("") })
     else
         call system(cmd)
         if v:shell_error == 0
@@ -58,6 +58,10 @@ endfunction
 
 function! s:asyncHandlerAdapter(job_id, data, event) abort
     if a:data != 0
+        return 0
+    endif
+
+    if bufnr("") != self.bufnr
         return 0
     endif
 
@@ -115,14 +119,20 @@ function! s:mungeDiagramInTmpFile(fname) abort
 endfunction
 
 function! s:convertNonAsciiSupportedSyntax(fname) abort
+    let oldbuf = bufnr("")
+
     exec 'edit ' . a:fname
+    let tmpbufnr = bufnr("")
+
     /@startuml/,/@enduml/s/^\s*\(boundary\|database\|entity\|control\)/participant/e
     /@startuml/,/@enduml/s/^\s*\(end \)\?\zsref\>/note/e
     /@startuml/,/@enduml/s/^\s*ref\>/note/e
     /@startuml/,/@enduml/s/|||/||4||/e
     /@startuml/,/@enduml/s/\.\.\.\([^.]*\)\.\.\./==\1==/e
     write
-    bwipe!
+
+    exec oldbuf . "buffer"
+    exec tmpbufnr. "bwipe!"
 endfunction
 
 function! s:removeLeadingWhitespace() abort
