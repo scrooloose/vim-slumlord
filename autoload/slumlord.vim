@@ -29,6 +29,11 @@ function! slumlord#updatePreview(args) abort
 endfunction
 
 function! s:shouldInsertPreview() abort
+    "check for 'no-preview flag
+    if search('^\s*''no-preview', 'wn') > 0
+        return
+    endif
+
     "check for state diagram
     if search('^\s*\[\*\]', 'wn') > 0
         return
