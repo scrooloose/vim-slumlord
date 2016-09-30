@@ -6,6 +6,8 @@ syn match plantumlPreviewEntity #│\w*│#hs=s+1,he=e-1 containedin=plantumlPre
 syn match plantumlPreviewTitleUnderline #\^\+# containedin=plantumlPreview contained
 syn match plantumlPreviewNoteText #║[^┌┐└┘┬─│┴<>╚═╪╝╔═╤╪╗║╧╟╠╣]*[░ ]║#hs=s+1,he=e-2 containedin=plantumlPreview contained
 syn match plantumlPreviewDividerText #╣[^┌┐└┘┬─│┴<>╚═╪╝╔═╤╪╗║╧╟╣]*╠#hs=s+1,he=e-1 containedin=plantumlPreview contained
+syn match plantumlPreviewMethodCall #\(\(│\|^\)\s*\)\@<=[a-zA-Z_]*([[:alnum:],_ ]*)# containedin=plantumlPreview contained
+syn match plantumlPreviewMethodCallParen #[()]# containedin=plantumlPreviewMethodCall contained
 
 hi def link plantumlPreview Normal
 hi def link plantumlPreviewBoxParts normal
@@ -15,5 +17,7 @@ hi def link plantumlPreviewEntity Statement
 hi def link plantumlPreviewTitleUnderline Statement
 hi def link plantumlPreviewNoteText Constant
 hi def link plantumlPreviewDividerText Constant
+hi def link plantumlPreviewMethodCall plantumlText
+hi def link plantumlPreviewMethodCallParen plantumlColonLine
 
 " vim: ft=vim
