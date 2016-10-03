@@ -12,7 +12,8 @@ function! slumlord#updatePreview(args) abort
     end
 
     let tmpfname = tempname()
-    let b:slumlord_preview_fname = s:mungeDiagramInTmpFile(tmpfname)
+    call s:mungeDiagramInTmpFile(tmpfname)
+    let b:slumlord_preview_fname = fnamemodify(tmpfname,  ':r') . '.utxt'
 
 
     let cmd = "java -jar ". s:jar_path ." -tutxt " . tmpfname
@@ -120,7 +121,6 @@ endfunction
 function! s:mungeDiagramInTmpFile(fname) abort
     execute "write " . a:fname
     call s:convertNonAsciiSupportedSyntax(a:fname)
-    return a:fname . '.utxt'
 endfunction
 
 function! s:convertNonAsciiSupportedSyntax(fname) abort
