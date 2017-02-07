@@ -20,7 +20,7 @@ function! slumlord#updatePreview(args) abort
 
     let write = has_key(a:args, 'write') && a:args["write"] == 1
     if exists("*jobstart")
-        call jobstart(cmd, { "on_exit": "s:asyncHandlerAdapter", "write": write, "bufnr": bufnr("") })
+        call jobstart(cmd, { "on_exit": function("s:asyncHandlerAdapter"), "write": write, "bufnr": bufnr("") })
     else
         call system(cmd)
         if v:shell_error == 0
@@ -62,7 +62,7 @@ function! s:dividerLnum() abort
     return search(s:divider, 'wn')
 endfunction
 
-function! s:asyncHandlerAdapter(job_id, data, event) abort
+function! s:asyncHandlerAdapter(job_id, data, event) abort dict
     if a:data != 0
         return 0
     endif
