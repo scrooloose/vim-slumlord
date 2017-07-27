@@ -8,7 +8,6 @@ setlocal nowrap
 if !exists("g:slumlord_au_created")
 
     if exists("*jobstart")
-        autocmd insertleave *.uml silent call slumlord#updatePreview({})
         autocmd bufwritepost *.uml silent call slumlord#updatePreview({'write': 1})
     else
         autocmd bufwritepost *.uml silent call slumlord#updatePreview({'write': 1})
