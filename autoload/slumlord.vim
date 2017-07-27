@@ -4,8 +4,6 @@ else
     let s:jar_path = expand("<sfile>:p:h") . "/../plantuml.jar"
 endif
 
-let s:divider = "@startuml"
-
 function! slumlord#updatePreview(args) abort
     if !s:shouldInsertPreview()
         return
@@ -15,7 +13,6 @@ function! slumlord#updatePreview(args) abort
     call s:mungeDiagramInTmpFile(tmpfname)
     let b:slumlord_preview_fname = fnamemodify(tmpfname,  ':r') . '.utxt'
 
-
     let cmd = "java -jar ". s:jar_path ." -tutxt " . tmpfname
 
     let write = has_key(a:args, 'write') && a:args["write"] == 1
@@ -24,7 +21,7 @@ function! slumlord#updatePreview(args) abort
     else
         call system(cmd)
         if v:shell_error == 0
-            call s:updateBuffer(a:args)
+            call s:updater.update(a:args)
         endif
     endif
 endfunction
@@ -55,11 +52,7 @@ function! s:shouldInsertPreview() abort
         return
     endif
 
-    return s:dividerLnum()
-endfunction
-
-function! s:dividerLnum() abort
-    return search(s:divider, 'wn')
+    return 1
 endfunction
 
 function! s:asyncHandlerAdapter(job_id, data, event) abort dict
@@ -71,44 +64,7 @@ function! s:asyncHandlerAdapter(job_id, data, event) abort dict
         return 0
     endif
 
-    call s:updateBuffer(self)
-endfunction
-
-"args: a dict containing keys
-"   'write' - write the buffer after updating
-function! s:updateBuffer(args) abort
-    let startLine = line(".")
-    let lastLine = line("$")
-    let startCol = col(".")
-
-    call s:deletePreviousDiagram()
-    call s:insertDiagram(b:slumlord_preview_fname)
-    call s:addTitle()
-
-    call cursor(line("$") - (lastLine - startLine), startCol)
-
-    if a:args['write']
-        noautocmd write
-    endif
-endfunction
-
-function! s:deletePreviousDiagram() abort
-    if s:dividerLnum() > 1
-        exec '0,' . (s:dividerLnum() - 1) . 'delete'
-    endif
-endfunction
-
-function! s:insertDiagram(fname) abort
-    call append(0, "")
-    call append(0, "")
-    0
-
-    call s:readWithoutStoringAsAltFile(a:fname)
-
-    "fix trailing whitespace
-    exec '1,' . s:dividerLnum() . 's/\s\+$//e'
-
-    call s:removeLeadingWhitespace()
+    call s:updater.update(self)
 endfunction
 
 function! s:readWithoutStoringAsAltFile(fname) abort
@@ -140,17 +96,21 @@ function! s:convertNonAsciiSupportedSyntax(fname) abort
     exec tmpbufnr. "bwipe!"
 endfunction
 
-function! s:removeLeadingWhitespace() abort
+function! s:removeLeadingWhitespace(...) abort
+    let opts = a:0 ? a:1 : {}
+
+    let diagramEnd = get(opts, 'diagramEnd', line('$'))
+
     let smallestLead = 100
 
-    for i in range(1, s:dividerLnum()-1)
+    for i in range(1, diagramEnd-1)
         let lead = match(getline(i), '\S')
         if lead >= 0 && lead < smallestLead
             let smallestLead = lead
         endif
     endfor
 
-    exec '1,' . s:dividerLnum() . 's/^ \{'.smallestLead.'}//e'
+    exec '1,' . diagramEnd . 's/^ \{'.smallestLead.'}//e'
 endfunction
 
 function! s:addTitle() abort
@@ -165,3 +125,116 @@ function! s:addTitle() abort
     call append(0, repeat("^", len(title)+6))
     call append(0, "   " . title)
 endfunction
+
+"InPlaceUpdater object {{{1
+let s:InPlaceUpdater = {}
+let s:InPlaceUpdater.divider = "@startuml"
+
+function! s:InPlaceUpdater.update(args) abort
+    let startLine = line(".")
+    let lastLine = line("$")
+    let startCol = col(".")
+
+    call self.__deletePreviousDiagram()
+    call self.__insertDiagram(b:slumlord_preview_fname)
+    call s:addTitle()
+
+    call cursor(line("$") - (lastLine - startLine), startCol)
+
+    if a:args['write']
+        noautocmd write
+    endif
+endfunction
+
+function! s:InPlaceUpdater.__deletePreviousDiagram() abort
+    if self.__dividerLnum() > 1
+        exec '0,' . (self.__dividerLnum() - 1) . 'delete'
+    endif
+endfunction
+
+function! s:InPlaceUpdater.__insertDiagram(fname) abort
+    call append(0, "")
+    call append(0, "")
+    0
+
+    call s:readWithoutStoringAsAltFile(a:fname)
+
+    "fix trailing whitespace
+    exec '1,' . self.__dividerLnum() . 's/\s\+$//e'
+
+    call s:removeLeadingWhitespace()
+endfunction
+
+function! s:InPlaceUpdater.__dividerLnum() abort
+    return search(self.divider, 'wn')
+endfunction
+
+"WinUpdater object {{{1
+let s:WinUpdater = {}
+function! s:WinUpdater.update(args) abort
+    let fname = b:slumlord_preview_fname
+    call self.__moveToWin()
+    %d
+
+    call append(0, "")
+    call append(0, "")
+    0
+
+    call s:readWithoutStoringAsAltFile(fname)
+
+    "fix trailing whitespace
+    %s/\s\+$//e
+
+    call s:removeLeadingWhitespace()
+    call s:addTitle()
+    wincmd p
+endfunction
+
+function s:WinUpdater.__moveToWin() abort
+    if exists("b:slumlord_bnum")
+        if bufwinnr(b:slumlord_bnum) != -1
+            exec bufwinnr(b:slumlord_bnum) . "wincmd w"
+        else
+            exec b:slumlord_bnum . "sb"
+        endif
+    else
+        let prev_bnum = bufnr("")
+        new
+        call setbufvar(prev_bnum, "slumlord_bnum", bufnr(""))
+        call self.__setupWinOpts()
+    endif
+endfunction
+
+function s:WinUpdater.__setupWinOpts() abort
+    setl nowrap
+    setl buftype=nofile
+    syn match plantumlPreviewBoxParts #[┌┐└┘┬─│┴<>╚═╪╝╔═╤╪╗║╧╟╠╣]#
+    syn match plantumlPreviewCtrlFlow #\(LOOP\|ALT\|OPT\)[^│]*│\s*[a-zA-Z0-9?! ]*#
+    syn match plantumlPreviewCtrlFlow #║ \[[^]]*\]#hs=s+3,he=e-1
+    syn match plantumlPreviewEntity #│\w*│#hs=s+1,he=e-1
+    syn match plantumlPreviewTitleUnderline #\^\+#
+    syn match plantumlPreviewNoteText #║[^┌┐└┘┬─│┴<>╚═╪╝╔═╤╪╗║╧╟╠╣]*[░ ]║#hs=s+1,he=e-2
+    syn match plantumlPreviewDividerText #╣[^┌┐└┘┬─│┴<>╚═╪╝╔═╤╪╗║╧╟╣]*╠#hs=s+1,he=e-1
+    syn match plantumlPreviewMethodCall #\(\(│\|^\)\s*\)\@<=[a-zA-Z_]*([[:alnum:],_ ]*)# 
+    syn match plantumlPreviewMethodCallParen #[()]# containedin=plantumlPreviewMethodCall contained
+
+    hi def link plantumlPreviewBoxParts normal
+    hi def link plantumlPreviewCtrlFlow Keyword
+    hi def link plantumlPreviewLoopName Statement
+    hi def link plantumlPreviewEntity Statement
+    hi def link plantumlPreviewTitleUnderline Statement
+    hi def link plantumlPreviewNoteText Constant
+    hi def link plantumlPreviewDividerText Constant
+    hi def link plantumlPreviewMethodCall plantumlText
+    hi def link plantumlPreviewMethodCallParen plantumlColonLine
+endfunction
+
+
+"other shit {{{1
+if exists("g:slumlord_separate_win")
+    let s:updater = s:WinUpdater
+else
+    let s:updater = s:InPlaceUpdater
+endif
+
+" vim:set fdm=marker:
