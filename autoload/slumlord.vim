@@ -72,20 +72,17 @@ endfunction
 function! s:readWithoutStoringAsAltFile(fname) abort
     let oldcpoptions = &cpoptions
     set cpoptions-=a
-    exec "read " . a:fname
+    exec 'read' a:fname
     let &cpoptions = oldcpoptions
 endfunction
 
 function! s:mungeDiagramInTmpFile(fname) abort
-    execute "write " . a:fname
+    call writefile(getline(1, '$'), a:fname)
     call s:convertNonAsciiSupportedSyntax(a:fname)
 endfunction
 
 function! s:convertNonAsciiSupportedSyntax(fname) abort
-    let oldbuf = bufnr("")
-
-    exec 'edit ' . a:fname
-    let tmpbufnr = bufnr("")
+    exec 'sp' a:fname
 
     /@startuml/,/@enduml/s/^\s*\(boundary\|database\|entity\|control\)/participant/e
     /@startuml/,/@enduml/s/^\s*\(end \)\?\zsref\>/note/e
@@ -94,8 +91,7 @@ function! s:convertNonAsciiSupportedSyntax(fname) abort
     /@startuml/,/@enduml/s/\.\.\.\([^.]*\)\.\.\./==\1==/e
     write
 
-    exec oldbuf . "buffer"
-    exec tmpbufnr. "bwipe!"
+    bwipe!
 endfunction
 
 function! s:removeLeadingWhitespace(...) abort
@@ -150,7 +146,7 @@ endfunction
 
 function! s:InPlaceUpdater.__deletePreviousDiagram() abort
     if self.__dividerLnum() > 1
-        exec '0,' . (self.__dividerLnum() - 1) . 'delete'
+        exec '0,' . (self.__dividerLnum() - 1) . 'delete _'
     endif
 endfunction
 
