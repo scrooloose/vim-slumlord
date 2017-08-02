@@ -18,6 +18,8 @@ function! slumlord#updatePreview(args) abort
     let write = has_key(a:args, 'write') && a:args["write"] == 1
     if exists("*jobstart")
         call jobstart(cmd, { "on_exit": function("s:asyncHandlerAdapter"), "write": write, "bufnr": bufnr("") })
+    elseif exists("*job_start")
+        call job_start(cmd, { "exit_cb": {job,st->call('s:asyncHandlerAdapter',[job,st,0],{"bufnr": bufnr(""),"write": write})}, "out_io": "buffer", "out_buf": bufnr("") })
     else
         call system(cmd)
         if v:shell_error == 0
@@ -122,7 +124,7 @@ function! s:addTitle() abort
     let title = substitute(getline(lnum), '^title \(.*\)', '\1', '')
 
     call append(0, "")
-    call append(0, repeat("^", len(title)+6))
+    call append(0, repeat("^", strdisplaywidth(title)+6))
     call append(0, "   " . title)
 endfunction
 
