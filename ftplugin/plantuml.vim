@@ -8,9 +8,9 @@ setlocal nowrap
 if !exists("g:slumlord_au_created")
 
     if exists("*jobstart")
-        autocmd bufwritepost *.uml silent call slumlord#updatePreview({'write': 1})
+        autocmd bufwritepost *.{uml,pu} silent call slumlord#updatePreview({'write': 1})
     else
-        autocmd bufwritepost *.uml silent call slumlord#updatePreview({'write': 1})
+        autocmd bufwritepost *.{uml,pu} silent call slumlord#updatePreview({'write': 1})
     endif
 
     let g:slumlord_au_created = 1
