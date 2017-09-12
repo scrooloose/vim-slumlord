@@ -13,7 +13,7 @@ function! slumlord#updatePreview(args) abort
     call s:mungeDiagramInTmpFile(tmpfname)
     let b:slumlord_preview_fname = fnamemodify(tmpfname,  ':r') . '.utxt'
 
-    let cmd = "java -Dapple.awt.UIElement=true -splash: -jar ". s:jar_path ." -tutxt " . tmpfname
+    let cmd = "java -Dapple.awt.UIElement=true -splash: -jar ". s:jar_path ." -charset UTF-8 -tutxt " . tmpfname
 
     let write = has_key(a:args, 'write') && a:args["write"] == 1
     if exists("*jobstart")
