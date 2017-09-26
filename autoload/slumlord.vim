@@ -13,11 +13,13 @@ function! slumlord#updatePreview(args) abort
     call s:mungeDiagramInTmpFile(tmpfname)
     let b:slumlord_preview_fname = fnamemodify(tmpfname,  ':r') . '.utxt'
 
-    let cmd = "java -Dapple.awt.UIElement=true -splash: -jar ". s:jar_path ." -tutxt " . tmpfname
+    let cmd = "java -Dapple.awt.UIElement=true -splash: -jar ". s:jar_path ." -charset UTF-8 -tutxt " . tmpfname
 
     let write = has_key(a:args, 'write') && a:args["write"] == 1
     if exists("*jobstart")
         call jobstart(cmd, { "on_exit": function("s:asyncHandlerAdapter"), "write": write, "bufnr": bufnr("") })
+    elseif exists("*job_start")
+        call job_start(cmd, { "exit_cb": {job,st->call('s:asyncHandlerAdapter',[job,st,0],{"bufnr": bufnr(""),"write": write})}, "out_io": "buffer", "out_buf": bufnr("") })
     else
         call system(cmd)
         if v:shell_error == 0
@@ -70,20 +72,17 @@ endfunction
 function! s:readWithoutStoringAsAltFile(fname) abort
     let oldcpoptions = &cpoptions
     set cpoptions-=a
-    exec "read " . a:fname
+    exec 'read' a:fname
     let &cpoptions = oldcpoptions
 endfunction
 
 function! s:mungeDiagramInTmpFile(fname) abort
-    execute "write " . a:fname
+    call writefile(getline(1, '$'), a:fname)
     call s:convertNonAsciiSupportedSyntax(a:fname)
 endfunction
 
 function! s:convertNonAsciiSupportedSyntax(fname) abort
-    let oldbuf = bufnr("")
-
-    exec 'edit ' . a:fname
-    let tmpbufnr = bufnr("")
+    exec 'sp' a:fname
 
     /@startuml/,/@enduml/s/^\s*\(boundary\|database\|entity\|control\)/participant/e
     /@startuml/,/@enduml/s/^\s*\(end \)\?\zsref\>/note/e
@@ -92,8 +91,7 @@ function! s:convertNonAsciiSupportedSyntax(fname) abort
     /@startuml/,/@enduml/s/\.\.\.\([^.]*\)\.\.\./==\1==/e
     write
 
-    exec oldbuf . "buffer"
-    exec tmpbufnr. "bwipe!"
+    bwipe!
 endfunction
 
 function! s:removeLeadingWhitespace(...) abort
@@ -122,7 +120,7 @@ function! s:addTitle() abort
     let title = substitute(getline(lnum), '^title \(.*\)', '\1', '')
 
     call append(0, "")
-    call append(0, repeat("^", len(title)+6))
+    call append(0, repeat("^", strdisplaywidth(title)+6))
     call append(0, "   " . title)
 endfunction
 
@@ -148,7 +146,7 @@ endfunction
 
 function! s:InPlaceUpdater.__deletePreviousDiagram() abort
     if self.__dividerLnum() > 1
-        exec '0,' . (self.__dividerLnum() - 1) . 'delete'
+        exec '0,' . (self.__dividerLnum() - 1) . 'delete _'
     endif
 endfunction
 
