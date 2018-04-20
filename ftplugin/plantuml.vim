@@ -7,5 +7,5 @@ setlocal nowrap
 
 augroup slumlord
     au!
-    autocmd bufwritepre *.{uml,pu,plantuml} silent call slumlord#updatePreview({'write': 1})
+    autocmd bufwritepre *.{uml,pu,plantuml,puml} silent call slumlord#updatePreview({'write': 1})
 augroup END
