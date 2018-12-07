@@ -1,3 +1,10 @@
+" PlantUML Live Preview for ascii/unicode art
+" @Date: 2018-12-07 13:00:22
+" @Last Modified by: Tsuyoshi CHO <Tsuyoshi.CHO@Gmail.com>
+" @Last Modified time: 2018-12-07 13:13:07
+" @License: WTFPL
+" PlantUML Filetype preview syntax
+
 syn region plantumlPreview start=#\%^\ze\_.*\n@startuml# end=#\ze@startuml#
 syn match plantumlPreviewBoxParts #[┌┐└┘┬─│┴<>╚═╪╝╔═╤╪╗║╧╟╠╣]# containedin=plantumlPreview contained
 syn match plantumlPreviewCtrlFlow #\(LOOP\|ALT\|OPT\)[^│]*│\s*[a-zA-Z0-9?! ]*# containedin=plantumlPreview contains=plantumlPreviewBoxParts contained

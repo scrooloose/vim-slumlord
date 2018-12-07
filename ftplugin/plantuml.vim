@@ -1,11 +1,30 @@
+" PlantUML Live Preview for ascii/unicode art
+" @Date: 2018-12-07 13:00:22
+" @Last Modified by: Tsuyoshi CHO <Tsuyoshi.CHO@Gmail.com>
+" @Last Modified time: 2018-12-07 13:12:33
+" @License: WTFPL
+" PlantUML Filetype preview kick
+
+" Intro  {{{1
 if exists("b:loaded_slumlord")
     finish
 endif
 let b:loaded_slumlord=1
 
+let s:save_cpo = &cpo
+set cpo&vim
+
+" setting {{{1
 setlocal nowrap
 
+" autocmd {{{1
 augroup slumlord
-    au!
+    autocmd!
     autocmd BufWritePre * if &ft =~ 'plantuml' | silent call slumlord#updatePreview({'write': 1}) | endif
 augroup END
+
+" Outro {{{1
+let &cpo = s:save_cpo
+unlet s:save_cpo
+
+" vim:set fdm=marker:
