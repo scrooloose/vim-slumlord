@@ -1,7 +1,8 @@
 " PlantUML Live Preview for ascii/unicode art
+" @Author: Martin Grenfell <martin.grenfell@gmail.com>
 " @Date: 2018-12-07 13:00:22
 " @Last Modified by: Tsuyoshi CHO <Tsuyoshi.CHO@Gmail.com>
-" @Last Modified time: 2018-12-07 13:13:07
+" @Last Modified time: 2018-12-08 00:02:47
 " @License: WTFPL
 " PlantUML Filetype preview syntax
 
