@@ -1,19 +1,44 @@
-if exists("g:slumlord_plantuml_jar_path")
-    let s:jar_path = g:slumlord_plantuml_jar_path
-else
-    let s:jar_path = expand("<sfile>:p:h") . "/../plantuml.jar"
-endif
+" PlantUML Live Preview for ascii/unicode art
+" @Author: Martin Grenfell <martin.grenfell@gmail.com>
+" @Date: 2018-12-07 13:00:22
+" @Last Modified by: Tsuyoshi CHO <Tsuyoshi.CHO@Gmail.com>
+" @Last Modified time: 2018-12-08 00:02:38
+" @License: WTFPL
+" PlantUML preview plugin core
 
+" Intro  {{{1
+if exists("g:autoloaded_slumlord")
+  finish
+endif
+let g:autoloaded_slumlord = 1
+
+let s:save_cpo = &cpo
+set cpo&vim
+
+" variable {{{1
+let g:slumlord_plantuml_jar_path = get(g:, 'slumlord_plantuml_jar_path', expand("<sfile>:p:h") . "/../plantuml.jar")
+let g:slumlord_asciiart_utf = get(g:, 'slumlord_asciiart_utf', 1)
+
+" function {{{1
 function! slumlord#updatePreview(args) abort
     if !s:shouldInsertPreview()
         return
     end
 
+    let charset = 'UTF-8'
+
+    let type = 'utxt'
+    let ext  = 'utxt'
+    if !g:slumlord_asciiart_utf
+      let type = 'txt'
+      let ext  = 'atxt'
+    endif
+
     let tmpfname = tempname()
     call s:mungeDiagramInTmpFile(tmpfname)
-    let b:slumlord_preview_fname = fnamemodify(tmpfname,  ':r') . '.utxt'
+    let b:slumlord_preview_fname = fnamemodify(tmpfname,  ':r') . '.' . ext
 
-    let cmd = "java -Dapple.awt.UIElement=true -splash: -jar ". s:jar_path ." -charset UTF-8 -tutxt " . tmpfname
+    let cmd = "java -Dapple.awt.UIElement=true -splash: -jar ". g:slumlord_plantuml_jar_path ." -charset ". charset ." -t" . type ." ". tmpfname
 
     let write = has_key(a:args, 'write') && a:args["write"] == 1
     if exists("*jobstart")
@@ -124,7 +149,7 @@ function! s:addTitle() abort
     call append(0, "   " . title)
 endfunction
 
-"InPlaceUpdater object {{{1
+" InPlaceUpdater object {{{1
 let s:InPlaceUpdater = {}
 let s:InPlaceUpdater.divider = "@startuml"
 
@@ -167,7 +192,7 @@ function! s:InPlaceUpdater.__dividerLnum() abort
     return search(self.divider, 'wn')
 endfunction
 
-"WinUpdater object {{{1
+" WinUpdater object {{{1
 let s:WinUpdater = {}
 function! s:WinUpdater.update(args) abort
     let fname = b:slumlord_preview_fname
@@ -228,11 +253,15 @@ function s:WinUpdater.__setupWinOpts() abort
 endfunction
 
 
-"other shit {{{1
-if exists("g:slumlord_separate_win")
+" other shit {{{1
+if exists("g:slumlord_separate_win") && g:slumlord_separate_win
     let s:updater = s:WinUpdater
 else
     let s:updater = s:InPlaceUpdater
 endif
+
+" Outro {{{1
+let &cpo = s:save_cpo
+unlet s:save_cpo
 
 " vim:set fdm=marker:
