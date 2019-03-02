@@ -2,11 +2,13 @@
 " @Author: Martin Grenfell <martin.grenfell@gmail.com>
 " @Date: 2018-12-07 13:00:22
 " @Last Modified by: Tsuyoshi CHO <Tsuyoshi.CHO@Gmail.com>
-" @Last Modified time: 2018-12-08 00:02:43
+" @Last Modified time: 2018-12-08 13:15:40
 " @License: WTFPL
 " PlantUML Filetype preview kick
 
 " Intro  {{{1
+scriptencoding utf-8
+
 if exists("b:loaded_slumlord")
     finish
 endif
