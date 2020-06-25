@@ -223,6 +223,10 @@ function s:WinUpdater.__moveToWin() abort
     else
         let prev_bnum = bufnr("")
         new
+        setlocal buftype=nofile
+        setlocal bufhidden=delete
+        setlocal noswapfile
+        setlocal textwidth=0 " avoid automatic line break
         call setbufvar(prev_bnum, "slumlord_bnum", bufnr(""))
         call self.__setupWinOpts()
     endif
