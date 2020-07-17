@@ -19,6 +19,7 @@ set cpo&vim
 let g:slumlord_plantuml_jar_path = get(g:, 'slumlord_plantuml_jar_path', expand("<sfile>:p:h") . "/../plantuml.jar")
 let g:slumlord_plantuml_include_path = get(g:, 'slumlord_plantuml_include_path', expand("~/.config/plantuml/include/"))
 let g:slumlord_asciiart_utf = get(g:, 'slumlord_asciiart_utf', 1)
+let s:base_cmd = "java -Dapple.awt.UIElement=true -Dplantuml.include.path=\"". g:slumlord_plantuml_include_path ."\" -splash: -jar ". g:slumlord_plantuml_jar_path ." "
 
 " function {{{1
 function! slumlord#updatePreview(args) abort
@@ -39,7 +40,7 @@ function! slumlord#updatePreview(args) abort
     call s:mungeDiagramInTmpFile(tmpfname)
     let b:slumlord_preview_fname = fnamemodify(tmpfname,  ':r') . '.' . ext
 
-    let cmd = "java -Dapple.awt.UIElement=true -Dplantuml.include.path=\"". g:slumlord_plantuml_include_path ."\" -splash: -jar ". g:slumlord_plantuml_jar_path ." -charset ". charset ." -t" . type ." ". tmpfname
+    let cmd = s:base_cmd. " -charset ". charset . " -t" . type ." ". tmpfname
 
     let write = has_key(a:args, 'write') && a:args["write"] == 1
     if exists("*jobstart")
@@ -51,6 +52,22 @@ function! slumlord#updatePreview(args) abort
         if v:shell_error == 0
             call s:updater.update(a:args)
         endif
+    endif
+endfunction
+
+" Export image {{{1
+function! slumlord#exportImage(args) abort
+    if exists(':Open') != 2
+        echom "Missing Open command (from Plug 'xolox/vim-shell')"
+        return
+    endif
+    let charset = 'UTF-8'
+    let cmd = s:base_cmd . " -charset ". charset . " " .fnameescape(expand('%:p'))
+
+    call system(cmd)
+    let img = expand('%:r') . '.png'
+    if v:shell_error == 0
+      exe "Open " . img
     endif
 endfunction
 
@@ -229,7 +246,9 @@ function s:WinUpdater.__moveToWin() abort
         setlocal noswapfile
         setlocal textwidth=0 " avoid automatic line break
         call setbufvar(prev_bnum, "slumlord_bnum", bufnr(""))
+        let b:slumlord_main_bnum = prev_bnum
         call self.__setupWinOpts()
+        command! -buffer -bar -nargs=0 ExportImage exe bufwinnr(b:slumlord_main_bnum) . "wincmd w" | call slumlord#exportImage({}) | wincmd p
     endif
 endfunction
 

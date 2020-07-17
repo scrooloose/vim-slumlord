@@ -36,10 +36,13 @@ Then run `:Vundle install`
 
 I also recommend installing the
 [plantuml-syntax](https://github.com/aklt/plantuml-syntax) plugin as Slumlord
-uses this for its syntax file.
+uses this for its syntax file, and
+[vim-shell](https://github.com/xolox/vim-shell) plugin for the optional
+`ExportImage` command (which displays an PNG image).
 
 ```
 Plugin 'aklt/plantuml-syntax'
+Plugin 'xolox/vim-shell'
 ```
 
 Usage

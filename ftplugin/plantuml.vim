@@ -24,6 +24,9 @@ augroup slumlord
     autocmd BufWritePre * if &ft =~ 'plantuml' | silent call slumlord#updatePreview({'write': 1}) | endif
 augroup END
 
+" command {{{1
+command! -buffer -bar -nargs=0 ExportImage call slumlord#exportImage({})
+
 " Outro {{{1
 let &cpo = s:save_cpo
 unlet s:save_cpo
