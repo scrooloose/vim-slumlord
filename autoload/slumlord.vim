@@ -249,6 +249,8 @@ function s:WinUpdater.__moveToWin() abort
         let b:slumlord_main_bnum = prev_bnum
         call self.__setupWinOpts()
         command! -buffer -bar -nargs=0 ExportImage exe bufwinnr(b:slumlord_main_bnum) . "wincmd w" | call slumlord#exportImage({}) | wincmd p
+        " TODO: allow chaning the mapping through an option
+        nmap <buffer> <leader>ex :ExportImage<CR>
     endif
 endfunction
 

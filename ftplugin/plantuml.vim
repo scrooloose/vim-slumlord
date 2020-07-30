@@ -15,6 +15,10 @@ let b:loaded_slumlord=1
 let s:save_cpo = &cpo
 set cpo&vim
 
+" Mappings {{{1
+" TODO: allow chaning the mapping through an option
+nmap <buffer> <leader>ex :ExportImage<CR>
+
 " setting {{{1
 setlocal nowrap
 
