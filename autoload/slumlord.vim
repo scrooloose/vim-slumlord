@@ -57,18 +57,7 @@ endfunction
 
 " Export image {{{1
 function! slumlord#exportImage(args) abort
-    if exists(':Open') != 2
-        echom "Missing Open command (from Plug 'xolox/vim-shell')"
-        return
-    endif
-    let charset = 'UTF-8'
-    let cmd = s:base_cmd . " -charset ". charset . " " .fnameescape(expand('%:p'))
-
-    call system(cmd)
-    let img = expand('%:r') . '.png'
-    if v:shell_error == 0
-      exe "Open " . img
-    endif
+    call system(s:base_cmd . " -gui " . fnameescape(fnamemodify('%', ":p:h")) . "&")
 endfunction
 
 function! s:shouldInsertPreview() abort
