@@ -214,7 +214,7 @@ function! s:WinUpdater.update(args) abort
 endfunction
 
 function s:WinUpdater.__moveToWin() abort
-    if exists("b:slumlord_bnum")
+    if exists("b:slumlord_bnum") && bufexists(b:slumlord_bnum)
         if bufwinnr(b:slumlord_bnum) != -1
             exec bufwinnr(b:slumlord_bnum) . "wincmd w"
         else
@@ -223,6 +223,10 @@ function s:WinUpdater.__moveToWin() abort
     else
         let prev_bnum = bufnr("")
         new
+        setlocal buftype=nofile
+        setlocal bufhidden=wipe
+        setlocal noswapfile
+        setlocal textwidth=0 " avoid automatic line break
         call setbufvar(prev_bnum, "slumlord_bnum", bufnr(""))
         call self.__setupWinOpts()
     endif
