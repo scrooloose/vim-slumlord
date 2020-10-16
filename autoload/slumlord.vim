@@ -17,7 +17,9 @@ set cpo&vim
 
 " variable {{{1
 let g:slumlord_plantuml_jar_path = get(g:, 'slumlord_plantuml_jar_path', expand("<sfile>:p:h") . "/../plantuml.jar")
+let g:slumlord_plantuml_include_path = get(g:, 'slumlord_plantuml_include_path', expand("~/.config/plantuml/include/"))
 let g:slumlord_asciiart_utf = get(g:, 'slumlord_asciiart_utf', 1)
+let s:base_cmd = "java -Dapple.awt.UIElement=true -Dplantuml.include.path=\"". g:slumlord_plantuml_include_path ."\" -splash: -jar ". g:slumlord_plantuml_jar_path ." "
 
 " function {{{1
 function! slumlord#updatePreview(args) abort
@@ -38,7 +40,7 @@ function! slumlord#updatePreview(args) abort
     call s:mungeDiagramInTmpFile(tmpfname)
     let b:slumlord_preview_fname = fnamemodify(tmpfname,  ':r') . '.' . ext
 
-    let cmd = "java -Dapple.awt.UIElement=true -splash: -jar ". g:slumlord_plantuml_jar_path ." -charset ". charset ." -t" . type ." ". tmpfname
+    let cmd = s:base_cmd. " -charset ". charset . " -t" . type ." ". tmpfname
 
     let write = has_key(a:args, 'write') && a:args["write"] == 1
     if exists("*jobstart")
@@ -51,6 +53,11 @@ function! slumlord#updatePreview(args) abort
             call s:updater.update(a:args)
         endif
     endif
+endfunction
+
+" Export image {{{1
+function! slumlord#exportImage(args) abort
+    call system(s:base_cmd . " -gui " . fnameescape(fnamemodify('%', ":p:h")) . "&")
 endfunction
 
 function! s:shouldInsertPreview() abort
@@ -214,7 +221,7 @@ function! s:WinUpdater.update(args) abort
 endfunction
 
 function s:WinUpdater.__moveToWin() abort
-    if exists("b:slumlord_bnum")
+    if exists("b:slumlord_bnum") && bufexists(b:slumlord_bnum)
         if bufwinnr(b:slumlord_bnum) != -1
             exec bufwinnr(b:slumlord_bnum) . "wincmd w"
         else
@@ -223,8 +230,16 @@ function s:WinUpdater.__moveToWin() abort
     else
         let prev_bnum = bufnr("")
         new
+        setlocal buftype=nofile
+        setlocal bufhidden=wipe
+        setlocal noswapfile
+        setlocal textwidth=0 " avoid automatic line break
         call setbufvar(prev_bnum, "slumlord_bnum", bufnr(""))
+        let b:slumlord_main_bnum = prev_bnum
         call self.__setupWinOpts()
+        command! -buffer -bar -nargs=0 ExportImage exe bufwinnr(b:slumlord_main_bnum) . "wincmd w" | call slumlord#exportImage({}) | wincmd p
+        " TODO: allow chaning the mapping through an option
+        nmap <buffer> <leader>ex :ExportImage<CR>
     endif
 endfunction
 

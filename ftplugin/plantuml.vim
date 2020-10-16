@@ -15,6 +15,10 @@ let b:loaded_slumlord=1
 let s:save_cpo = &cpo
 set cpo&vim
 
+" Mappings {{{1
+" TODO: allow chaning the mapping through an option
+nmap <buffer> <leader>ex :ExportImage<CR>
+
 " setting {{{1
 setlocal nowrap
 
@@ -23,6 +27,9 @@ augroup slumlord
     autocmd!
     autocmd BufWritePre * if &ft =~ 'plantuml' | silent call slumlord#updatePreview({'write': 1}) | endif
 augroup END
+
+" command {{{1
+command! -buffer -bar -nargs=0 ExportImage call slumlord#exportImage({})
 
 " Outro {{{1
 let &cpo = s:save_cpo
