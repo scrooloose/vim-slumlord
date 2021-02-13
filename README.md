@@ -50,3 +50,27 @@ will be forcefully inserted/updated at the top of your file!
 
 Note: I have only used this for sequence diagrams - the ASCII output of
 plantuml seems to be less than stellar for other diagram types.
+
+Advanced usage
+==============
+
+* Separate window
+* Swap the layout to vertical with `Ctrl+w H` or type `:wincmd H`
+
+TIP: if the file extension was not recognized by default use `:set ft=plantuml` to enable the plugin.
+
+```vim
+" default path for the plantuml debian package
+let g:slumlord_plantuml_jar_path = "/usr/share/plantuml/plantuml.jar"
+
+" some common configurations
+let g:slumlord_plantuml_include_path = "~/.config/plantuml/include/"
+
+" use another buffer for preview
+let g:slumlord_separate_win = 1
+
+" enable utf symbols (default)
+let g:slumlord_asciiart_utf = 1
+```
+
+![Demo alt](https://github.com/geraldolsribeiro/vim-slumlord/raw/master/_assets/demo-alt.gif)
